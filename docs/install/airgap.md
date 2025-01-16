@@ -48,6 +48,16 @@ If your nodes do not have an interface with a default route, a default route mus
 3. Copy the compressed archive to `/var/lib/rancher/rke2/agent/images/` on the node, ensuring that the file extension is retained.
 4. [Install RKE2](#install-rke2)
 
+## Hauler 
+You can also use the open source airgap tool [Hauler](https://docs.hauler.dev/docs/intro) to store and transport the RKE2 tarball. Follow the [installation instructions](https://docs.hauler.dev/docs/introduction/install), then proceed with the following steps.
+
+1. On your connected machine, download and add the tarball to your store: `hauler store add file rke2-images.linux-amd64.tar.zst`. The tarball can be found in the RKE2 release artifacts for your desired version. 
+2. You may also add other artifacts you'd like to airgap to the [Hauler store](https://docs.hauler.dev/docs/hauler-usage/store/add/file). Add the sha256sum file using `hauler store add file https://github.com/rancher/rke2/releases/download/v1.26.10%2Brke2r2/sha256sum-amd64.txt`. You will need this to run the install script on your airgapped node. 
+3. Save the Hauler store to a file: `hauler store save --filename haul.tar.zst`. 
+4. On your airgap machine, load the stored content with `hauler store load haul.tar.zst`.
+5. You may also copy the Hauler store content to the directory. For RKE2, ensure the directory `/var/lib/rancher/rke2/agent/images/` exists on the node. Then run `hauler store copy dir://var/lib/rancher/rke2/agent/images/`.
+6. Follow the RKE2 [install instructions](#install-rke2).
+
 ## Private Registry Method
 Private registry support honors all settings from the [containerd registry configuration](private_registry.md). This includes endpoint override and transport protocol (HTTP/HTTPS), authentication, certificate verification, etc.
 
