@@ -48,7 +48,7 @@ If your nodes do not have an interface with a default route, a default route mus
 3. Copy the compressed archive to `/var/lib/rancher/rke2/agent/images/` on the node, ensuring that the file extension is retained.
 4. [Install RKE2](#install-rke2)
 
-## Hauler 
+## Hauler Method
 You can also use the open source airgap tool [Hauler](https://docs.hauler.dev/docs/intro) to store and transport the RKE2 tarball. Follow the [installation instructions](https://docs.hauler.dev/docs/introduction/install), then proceed with the following steps.
 
 1. On your connected machine, download and add the tarball to your store: `hauler store add file rke2-images.linux-amd64.tar.zst`. The tarball can be found in the RKE2 release artifacts for your desired version. 
@@ -74,7 +74,7 @@ The mirrored images may be sourced from an upstream registry, registry mirror, o
 For more information on enabling the embedded distributed registry mirror, see the [Embedded Registry Mirror](./registry_mirror.md) documentation.
 
 ## Install RKE2
-The following options to install RKE2 should only be performed after completing one of either the [Tarball Method](#tarball-method) or [Private Registry Method](#private-registry-method).
+The following options to install RKE2 should only be performed after completing one of either the [Tarball Method](#tarball-method), [Hauler Method](#hauler-method), or [Private Registry Method](#private-registry-method).
 
 RKE2 can be installed either by running the [binary](#rke2-binary-install) directly or by using the [install.sh script](#rke2-installsh-script-install).
 
