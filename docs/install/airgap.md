@@ -108,33 +108,53 @@ If your nodes do not have an interface with a default route, a default route mus
   ip route add default via 203.0.113.255 dev dummy0 metric 1000
   ```
 
-</details>
+## Tarball Method
 
-<details>
-<summary>**SELinux RPM** - required for airgapped nodes with SELinux enabled</summary>
+1. Download the airgap images tarballs from the RKE release artifacts list for the version and platform of RKE2 you are using.
+    * Use `rke2-images.linux-amd64.tar.zst` or `rke2-images.linux-amd64.tar.gz`. Zstandard offers better compression ratios and faster decompression speeds compared to gzip.
+    * If using the default Canal CNI (`--cni=canal`), you can use either the `rke2-image` legacy archive as described above, or `rke2-images-core` and `rke2-images-canal` archives.
+    * If using the alternative Cilium CNI (`--cni=cilium`), you must download the `rke2-images-core` and `rke2-images-cilium` archives instead.
+    * If using your own CNI (`--cni=none`), you can download only the `rke2-images-core` archive.
+    * If enabling the vSphere CPI/CSI charts (`--cloud-provider-name=rancher-vsphere`), you must also download the `rke2-images-vsphere` archive.
+2. Ensure that the `/var/lib/rancher/rke2/agent/images/` directory exists on the node.
+3. Copy the compressed archive to `/var/lib/rancher/rke2/agent/images/` on the node, ensuring that the file extension is retained.
+4. [Install RKE2](#install-rke2)
 
-#### SELinux RPM
+## Hauler 
+You can also use the open source airgap tool [Hauler](https://docs.hauler.dev/docs/intro) to store and transport the RKE2 tarball. Follow the [installation instructions](https://docs.hauler.dev/docs/introduction/install), then proceed with the following steps.
 
-If running on an air-gapped node with SELinux enabled, you must manually install the rke2-selinux RPM before installing RKE2. This RPM includes the necessary SELinux policies for RKE2 to run properly. See our [RPM Documentation](https://docs.rke2.io/install/methods#rpm) to learn how to obtain the rpm. The rke2-selinux RPM installation requires the following dependencies to be available in the OS:  
-    * container-selinux
-    * iptables-nft
-    * libnftnl
-    * policycoreutils
-    * selinux-policy
+1. On your connected machine, download and add the tarball to your store: `hauler store add file rke2-images.linux-amd64.tar.zst`. The tarball can be found in the RKE2 release artifacts for your desired version. 
+2. You may also add other artifacts you'd like to airgap to the [Hauler store](https://docs.hauler.dev/docs/hauler-usage/store/add/file). Add the sha256sum file using `hauler store add file https://github.com/rancher/rke2/releases/download/v1.26.10%2Brke2r2/sha256sum-amd64.txt`. You will need this to run the install script on your airgapped node. 
+3. Save the Hauler store to a file: `hauler store save --filename haul.tar.zst`. 
+4. On your airgap machine, load the stored content with `hauler store load haul.tar.zst`.
+5. You may also copy the Hauler store content to the directory. For RKE2, ensure the directory `/var/lib/rancher/rke2/agent/images/` exists on the node. Then run `hauler store copy dir://var/lib/rancher/rke2/agent/images/`.
+6. Follow the RKE2 [install instructions](#install-rke2).
 
-</details>
+## Private Registry Method
+Private registry support honors all settings from the [containerd registry configuration](private_registry.md). This includes endpoint override and transport protocol (HTTP/HTTPS), authentication, certificate verification, etc.
 
+1. Add all the required system images to your private registry. A list of images can be obtained from the `.txt` file corresponding to each tarball referenced above, or you may `docker load` the airgap image tarballs, then tag and push the loaded images.
+2. [Install RKE2](#install-rke2) using the `system-default-registry` parameter, or use the [containerd registry configuration](private_registry.md) to use your registry as a mirror for docker.io.
 
-### Installation
+## Embedded Registry Mirror
 
-RKE2 in airgap can be installed using the binary or the install script
+RKE2 includes an embedded distributed OCI-compliant registry mirror.
+When enabled and properly configured, images available in the containerd image store on any node
+can be pulled by other cluster members without access to an external image registry.
 
-<Tabs queryString="installation-methods">
-<TabItem value="Binary install">
+The mirrored images may be sourced from an upstream registry, registry mirror, or airgap image tarball.
+For more information on enabling the embedded distributed registry mirror, see the [Embedded Registry Mirror](./registry_mirror.md) documentation.
 
-#### Binaries
-- Download the RKE2 binary file `rke2.linux-amd64` from the [releases](https://github.com/rancher/rke2/releases) page, matching the same version and architecture used to get the airgap images. Place the binary in `/usr/local/bin` on each air-gapped node and ensure it is executable.
-- Run the binary with the desired parameters. For example, if using the Private Registry Method, your config file would have the following:
+## Install RKE2
+The following options to install RKE2 should only be performed after completing one of either the [Tarball Method](#tarball-method) or [Private Registry Method](#private-registry-method).
+
+RKE2 can be installed either by running the [binary](#rke2-binary-install) directly or by using the [install.sh script](#rke2-installsh-script-install).
+
+### RKE2 Binary Install
+
+1. Obtain the rke2 binary file `rke2.linux-amd64`.
+2. Ensure the binary is named `rke2` and place it in `/usr/local/bin`. Ensure it is executable.
+3. Run the binary with the desired parameters. For example, if using the Private Registry Method, your config file would have the following:
 
 ```yaml
 system-default-registry: "registry.example.com:5000"
