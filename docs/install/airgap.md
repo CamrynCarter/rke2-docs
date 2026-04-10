@@ -113,7 +113,22 @@ If your nodes do not have an interface with a default route, a default route mus
 <details>
 <summary>**SELinux RPM** - required for airgapped nodes with SELinux enabled</summary>
 
+<<<<<<< HEAD
 #### SELinux RPM
+=======
+## Hauler Method
+You can also use the open source airgap tool [Hauler](https://docs.hauler.dev/docs/intro) to store and transport the RKE2 tarball. Follow the [installation instructions](https://docs.hauler.dev/docs/introduction/install), then proceed with the following steps.
+
+1. On your connected machine, download and add the tarball to your store: `hauler store add file rke2-images.linux-amd64.tar.zst`. The tarball can be found in the RKE2 release artifacts for your desired version. 
+2. You may also add other artifacts you'd like to airgap to the [Hauler store](https://docs.hauler.dev/docs/hauler-usage/store/add/file). Add the sha256sum file using `hauler store add file https://github.com/rancher/rke2/releases/download/v1.26.10%2Brke2r2/sha256sum-amd64.txt`. You will need this to run the install script on your airgapped node. 
+3. Save the Hauler store to a file: `hauler store save --filename haul.tar.zst`. 
+4. On your airgap machine, load the stored content with `hauler store load haul.tar.zst`.
+5. You may also copy the Hauler store content to the directory. For RKE2, ensure the directory `/var/lib/rancher/rke2/agent/images/` exists on the node. Then run `hauler store copy dir://var/lib/rancher/rke2/agent/images/`.
+6. Follow the RKE2 [install instructions](#install-rke2).
+
+## Private Registry Method
+Private registry support honors all settings from the [containerd registry configuration](private_registry.md). This includes endpoint override and transport protocol (HTTP/HTTPS), authentication, certificate verification, etc.
+>>>>>>> 6ce089f9b254ec619549a31034aedf338997ed0e
 
 If running on an air-gapped node with SELinux enabled, you must manually install the rke2-selinux RPM before installing RKE2. This RPM includes the necessary SELinux policies for RKE2 to run properly. See our [RPM Documentation](https://docs.rke2.io/install/methods#rpm) to learn how to obtain the rpm. The rke2-selinux RPM installation requires the following dependencies to be available in the OS:  
     * container-selinux
@@ -127,7 +142,12 @@ If running on an air-gapped node with SELinux enabled, you must manually install
 
 ### Installation
 
+<<<<<<< HEAD
 RKE2 in airgap can be installed using the binary or the install script
+=======
+## Install RKE2
+The following options to install RKE2 should only be performed after completing one of either the [Tarball Method](#tarball-method), [Hauler Method](#hauler-method), or [Private Registry Method](#private-registry-method).
+>>>>>>> 6ce089f9b254ec619549a31034aedf338997ed0e
 
 <Tabs queryString="installation-methods">
 <TabItem value="Binary install">
